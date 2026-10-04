@@ -285,15 +285,24 @@
             justify-content: center;
         }
 
-        .preview-item svg {
-            opacity: 0.4;
+        /* 截图图片：铺满预览框 */
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
+        /* 截图底部说明文字：加渐变遮罩保证可读 */
         .preview-item span {
             position: absolute;
-            bottom: 20px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px 0 12px;
             font-size: 12px;
-            color: #64748b;
+            color: #e2e8f0;
+            background: linear-gradient(180deg, transparent, rgba(5, 7, 20, 0.85));
         }
 
         /* 底部 */
@@ -422,31 +431,24 @@
             </div>
         </section>
 
-        <!-- 预览区 -->
+        <!-- 预览区：替换 src 为你的截图直链即可 -->
         <section class="preview-section" id="preview">
             <h2 class="section-title">应用预览</h2>
             <div class="preview-scroll">
+                <!-- 截图1 -->
                 <div class="preview-item">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                    </svg>
+                    <img src="https://mxtc.miao-vip.com/upload/2026-10-04/2610040336195634.png" alt="应用界面预览">
                     <span>应用界面预览</span>
                 </div>
+                <!-- 截图2 -->
                 <div class="preview-item">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 3v5h5"></path>
-                        <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path>
-                        <path d="M12 19v-7h7"></path>
-                    </svg>
-                    <span>轨迹设置界面</span>
+                    <img src="https://mxtc.miao-vip.com/upload/2026-10-04/2610040336443284.png" alt="轨迹设置界面">
+                    <span>应用功能界面</span>
                 </div>
+                <!-- 截图3 -->
                 <div class="preview-item">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                    </svg>
-                    <span>机型模拟界面</span>
+                    <img src="https://mxtc.miao-vip.com/upload/2026-10-04/2610040336579574.png" alt="机型模拟界面">
+                    <span>路线模拟界面</span>
                 </div>
             </div>
         </section>
