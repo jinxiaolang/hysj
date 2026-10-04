@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN"><head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>环游世界 - 正版官网下载</title>
     <style>
         html {
@@ -314,6 +314,141 @@
             padding-top: 20px;
             border-top: 1px solid rgba(255,255,255,0.05);
         }
+
+        /* ===== QQ/微信 防红跳转提示层 ===== */
+        .wx-mask {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background: rgba(5, 7, 20, 0.97);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+        }
+
+        .wx-mask.show {
+            display: block;
+        }
+
+        /* 箭头指向右上角「···」菜单 */
+        .wx-arrow {
+            position: absolute;
+            top: 10px; /* 兜底：不支持 env() 的浏览器 */
+            top: calc(env(safe-area-inset-top, 0px) + 10px);
+            right: 16px;
+            width: 88px;
+            animation: wxArrow 1.5s ease-in-out infinite;
+        }
+
+        .wx-arrow svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .wx-arrow-tip {
+            text-align: center;
+            font-size: 13px;
+            color: #00d4ff;
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+
+        @keyframes wxArrow {
+            0%, 100% { transform: translate(0, 0); opacity: 1; }
+            50% { transform: translate(-8px, 10px); opacity: 0.7; }
+        }
+
+        /* 中间提示卡片 */
+        .wx-dialog {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 82%;
+            max-width: 330px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: 18px;
+            padding: 26px 20px 22px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .wx-dialog h2 {
+            font-size: 19px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+        }
+
+        .wx-dialog .wx-sub {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 18px;
+        }
+
+        .wx-step {
+            background: rgba(0, 212, 255, 0.07);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px 14px;
+            text-align: left;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #e2e8f0;
+            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .wx-step-num {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+        }
+
+        .wx-step b {
+            color: #00d4ff;
+            font-weight: 700;
+        }
+
+        /* 继续访问按钮 */
+        .wx-btn {
+            width: 100%;
+            padding: 13px;
+            margin-top: 6px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #00d4ff 0%, #7c3aed 100%);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .wx-btn:active {
+            transform: scale(0.98);
+        }
+
+        .wx-tiny {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 12px;
+        }
     </style>
 </head>
 <body>
@@ -460,5 +595,62 @@
         </footer>
     </div>
 
+    <!-- QQ/微信防红跳转提示层：在微信/QQ内打开时引导用户去外部浏览器 -->
+    <div class="wx-mask" id="wxMask">
+        <!-- 动态箭头指向右上角菜单 -->
+        <div class="wx-arrow">
+            <svg viewBox="0 0 64 64" fill="none" stroke="#00d4ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 48 L44 20"></path>
+                <polyline points="32 18 46 18 46 32"></polyline>
+            </svg>
+            <div class="wx-arrow-tip">点这里</div>
+        </div>
+        <div class="wx-dialog">
+            <h2>请在浏览器中打开</h2>
+            <p class="wx-sub">当前在<span id="wxEnvName">微信/QQ</span>内打开，为保障正常下载，请按提示操作</p>
+            <div class="wx-step">
+                <span class="wx-step-num">1</span>
+                <span>点击屏幕右上角的 <b>「···」</b> 菜单按钮</span>
+            </div>
+            <div class="wx-step">
+                <span class="wx-step-num">2</span>
+                <span>选择 <b>「在浏览器打开」</b> 即可正常访问</span>
+            </div>
+            <button class="wx-btn" id="wxCloseBtn" type="button">仍要继续访问</button>
+            <p class="wx-tiny">提示：下载安装包需在外部浏览器中进行</p>
+        </div>
+    </div>
 
+    <script>
+    (function () {
+        /* 防红跳转：检测微信 / QQ 内置浏览器 */
+        var ua = navigator.userAgent.toLowerCase();
+        /* 微信及企业微信 WebView */
+        var isWeChat = ua.indexOf('micromessenger') > -1;
+        /* 手机QQ WebView（含 V1_AND_SQ / V1_IPH_SQ 标识）及 QQ空间 */
+        var isQQ = ua.indexOf(' qq/') > -1 || ua.indexOf('_sq_') > -1 || ua.indexOf('qzone') > -1;
+
+        var mask = document.getElementById('wxMask');
+
+        if ((isWeChat || isQQ) && mask) {
+            /* 标注当前所在环境 */
+            var envName = document.getElementById('wxEnvName');
+            if (envName) {
+                envName.textContent = isWeChat ? '微信' : 'QQ';
+            }
+
+            mask.classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            /* 允许用户执意继续访问 */
+            var btn = document.getElementById('wxCloseBtn');
+            if (btn) {
+                btn.addEventListener('click', function () {
+                    mask.classList.remove('show');
+                    document.body.style.overflow = '';
+                });
+            }
+        }
+    })();
+    </script>
 </body></html>
