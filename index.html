@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>环游世界 - 官网下载</title>
+    <title>环游世界 - 正版官网下载</title>
     <style>
         html {
             scroll-behavior: smooth;
@@ -44,6 +44,11 @@
             padding: 40px 20px 20px;
             position: relative;
             z-index: 1;
+        }
+
+        /* 未解锁时隐藏页面主体，防止直接滚动查看 */
+        body.locked .container {
+            display: none;
         }
 
         /* 头部图标与标题 */
@@ -315,6 +320,126 @@
             border-top: 1px solid rgba(255,255,255,0.05);
         }
 
+        /* ===== 访问密码锁层（优先级最高） ===== */
+        .lock-mask {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10000;
+            background: linear-gradient(180deg, #050714 0%, #0a0e27 100%);
+        }
+
+        .lock-mask.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .lock-card {
+            width: 100%;
+            max-width: 340px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: 18px;
+            padding: 32px 24px 26px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .lock-card.shake {
+            animation: lockShake 0.4s ease;
+        }
+
+        @keyframes lockShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+        }
+
+        .lock-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .lock-card h2 {
+            font-size: 19px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+        }
+
+        .lock-card .lock-sub {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .lock-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #e2e8f0;
+            font-size: 18px;
+            letter-spacing: 8px;
+            text-align: center;
+            outline: none;
+            -webkit-text-security: disc; /* 部分安卓 WebView 不支持 type=password 圆点时的兜底 */
+            margin-bottom: 14px;
+        }
+
+        .lock-input:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+        }
+
+        .lock-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #00d4ff 0%, #7c3aed 100%);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .lock-btn:active {
+            transform: scale(0.98);
+        }
+
+        .lock-err {
+            display: none;
+            font-size: 12px;
+            color: #f87171;
+            margin-top: 12px;
+        }
+
+        .lock-err.show {
+            display: block;
+        }
+
+        .lock-tip {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 14px;
+        }
+
         /* ===== QQ/微信 防红跳转提示层 ===== */
         .wx-mask {
             display: none;
@@ -426,24 +551,6 @@
             font-weight: 700;
         }
 
-        /* 继续访问按钮 */
-        .wx-btn {
-            width: 100%;
-            padding: 13px;
-            margin-top: 6px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(90deg, #00d4ff 0%, #7c3aed 100%);
-            color: #fff;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .wx-btn:active {
-            transform: scale(0.98);
-        }
-
         .wx-tiny {
             font-size: 11px;
             color: #64748b;
@@ -451,7 +558,26 @@
         }
     </style>
 </head>
-<body>
+<body class="locked">
+    <!-- 访问密码锁：输入正确密码后才能进入页面 -->
+    <div class="lock-mask" id="lockMask">
+        <div class="lock-card" id="lockCard">
+            <div class="lock-icon">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="10" width="16" height="11" rx="2"></rect>
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                    <circle cx="12" cy="15.5" r="1.5"></circle>
+                </svg>
+            </div>
+            <h2>访问验证</h2>
+            <p class="lock-sub">该页面已加密，请输入访问密码</p>
+            <input class="lock-input" id="lockInput" type="password" inputmode="numeric" autocomplete="off" placeholder="····" maxlength="12">
+            <button class="lock-btn" id="lockBtn" type="button">进入页面</button>
+            <p class="lock-err" id="lockErr">密码错误，请重新输入</p>
+            <p class="lock-tip">如需获取访问密码，请联系站长</p>
+        </div>
+    </div>
+
     <div class="container">
         <!-- 头部图标标题 -->
         <header class="header">
@@ -617,14 +743,77 @@
                 <span class="wx-step-num">2</span>
                 <span>选择 <b>「在浏览器打开」</b> 即可正常访问</span>
             </div>
-            
+
             <p class="wx-tiny">提示：下载安装包需在外部浏览器中进行</p>
         </div>
     </div>
 
     <script>
     (function () {
-        /* 防红跳转：检测微信 / QQ 内置浏览器 */
+        /* ================= 访问密码锁 ================= */
+        var ACCESS_PASSWORD = '7777'; /* 默认访问密码，修改这里即可换密码 */
+        var STORE_KEY = 'hy_access_ok';
+
+        var lockMask = document.getElementById('lockMask');
+        var lockCard = document.getElementById('lockCard');
+        var lockInput = document.getElementById('lockInput');
+        var lockBtn = document.getElementById('lockBtn');
+        var lockErr = document.getElementById('lockErr');
+
+        /* 判断本会话是否已解锁（iOS 无痕模式等场景可能禁用 sessionStorage，用 try/catch 兜底） */
+        function isUnlocked() {
+            try { return sessionStorage.getItem(STORE_KEY) === '1'; } catch (e) { return false; }
+        }
+
+        function markUnlocked() {
+            try { sessionStorage.setItem(STORE_KEY, '1'); } catch (e) {}
+        }
+
+        function unlock() {
+            lockMask.classList.remove('show');
+            document.body.classList.remove('locked');
+            markUnlocked();
+        }
+
+        function showError() {
+            /* 抖动 + 错误提示 */
+            lockErr.classList.add('show');
+            lockCard.classList.remove('shake');
+            /* 触发重绘以重放动画 */
+            void lockCard.offsetWidth;
+            lockCard.classList.add('shake');
+            lockInput.value = '';
+            lockInput.focus();
+        }
+
+        function verify() {
+            if (lockInput.value === ACCESS_PASSWORD) {
+                unlock();
+            } else {
+                showError();
+            }
+        }
+
+        if (!isUnlocked()) {
+            /* 密码锁 */
+            lockMask.classList.add('show');
+            lockInput.focus();
+
+            lockBtn.addEventListener('click', verify);
+            /* 支持软键盘「前往/回车」直接提交 */
+            lockInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) verify();
+            });
+            /* 重新输入时清除错误提示 */
+            lockInput.addEventListener('input', function () {
+                lockErr.classList.remove('show');
+            });
+        } else {
+            /* 会话内已解锁：直接放行 */
+            document.body.classList.remove('locked');
+        }
+
+        /* ================= 防红跳转：检测微信 / QQ 内置浏览器 ================= */
         var ua = navigator.userAgent.toLowerCase();
         /* 微信及企业微信 WebView */
         var isWeChat = ua.indexOf('micromessenger') > -1;
@@ -642,15 +831,6 @@
 
             mask.classList.add('show');
             document.body.style.overflow = 'hidden';
-
-            /* 允许用户执意继续访问 */
-            var btn = document.getElementById('wxCloseBtn');
-            if (btn) {
-                btn.addEventListener('click', function () {
-                    mask.classList.remove('show');
-                    document.body.style.overflow = '';
-                });
-            }
         }
     })();
     </script>
